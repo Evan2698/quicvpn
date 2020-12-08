@@ -26,7 +26,7 @@ func main() {
 	wg.Add(1)
 
 	go func() {
-		wg.Done()
+
 		for {
 			by, err := tun.Read()
 			if err != nil {
@@ -37,6 +37,8 @@ func main() {
 			log.Print("read bytes: ", len(by))
 			log.Println("src:", net.IP(by[12:16]), "dst:", net.IP(by[16:20]))
 		}
+
+		wg.Done()
 
 	}()
 

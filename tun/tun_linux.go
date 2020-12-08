@@ -1,6 +1,7 @@
 package tun
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -41,12 +42,15 @@ func (d *tundevice) OpenTun(addr net.IP, network net.IP, mask net.IP) error {
 		uintptr(unsafe.Pointer(&ifr[0])))
 	if errno != 0 {
 		log.Println("[CRIT] Cannot ioctl TUNSETIFF:", errno)
+		fd.Close()
+		return errors.New("syscall  SYS_IOCTL failed")
 	}
 
 	d.name = string(ifr)
 	d.name = d.name[:strings.Index(d.name, "\000")]
 	log.Printf("[INFO] TUN/TAP device %s opened.", d.name)
 	if err := d.setupAddress(addr.String(), mask.String()); err != nil {
+		d.Close()
 		return err
 	}
 
