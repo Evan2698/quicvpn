@@ -1,4 +1,4 @@
-package logex
+package logutils
 
 import (
 	"fmt"

@@ -12,7 +12,7 @@ type tundevice struct {
 }
 
 type Tun interface {
-	OpenTun(addr net.IP, network net.IP, mask net.IP) error
+	CreateTun(name string, mtu int, IP, mask net.IP) error
 	Read() ([]byte, error)
 	Write([]byte) (int, error)
 	Close() error
