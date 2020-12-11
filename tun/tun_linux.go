@@ -62,7 +62,6 @@ func (d *tundevice) CreateTun(name string, mtu int, IP, mask net.IP) error {
 	}
 
 	return nil
-
 }
 
 type socketAddrRequest struct {
