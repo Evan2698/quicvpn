@@ -123,7 +123,7 @@ func setTunFlags(name string, fd int, set, clr uint16) error {
 
 }
 
-func setTunIP(name string, fd int, ip net.IP) error {
+func setIPCommon(name string, fd int, ip net.IP, action uintptr) syscall.Errno {
 
 	var a socketAddrRequest
 	copy(a.name[:], name)
@@ -134,9 +134,16 @@ func setTunIP(name string, fd int, ip net.IP) error {
 	_, _, errno := unix.Syscall(
 		unix.SYS_IOCTL,
 		uintptr(fd),
-		uintptr(unix.SIOCSIFADDR),
+		action,
 		uintptr(unsafe.Pointer(&a)),
 	)
+	return errno
+
+}
+
+func setTunIP(name string, fd int, ip net.IP) error {
+
+	errno := setIPCommon(name, fd, ip, uintptr(unix.SIOCSIFADDR))
 	if errno < 0 {
 		log.Println("set ip failed", errno)
 		return errors.New("set ip failed")
@@ -146,18 +153,13 @@ func setTunIP(name string, fd int, ip net.IP) error {
 }
 
 func setTunMask(name string, fd int, mask net.IP) error {
-	var a socketAddrRequest
-	copy(a.name[:], name)
-	a.addr = unix.RawSockaddrInet4{}
-	a.addr.Family = unix.AF_INET
-	copy(a.addr.Addr[:], mask.To4())
 
-	_, _, errno := unix.Syscall(
-		unix.SYS_IOCTL,
-		uintptr(fd),
-		uintptr(unix.SIOCSIFNETMASK),
-		uintptr(unsafe.Pointer(&a)),
-	)
+	errno := setIPCommon(name, fd, mask, uintptr(unix.SIOCSIFNETMASK))
+	if errno < 0 {
+		log.Println("set ip failed", errno)
+		return errors.New("set ip failed")
+	}
+
 	if errno < 0 {
 		log.Println("set mask failed", errno)
 		return errors.New("set mask failed")
