@@ -7,13 +7,13 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"flag"
 	"fmt"
 	"io"
-	"log"
 	"math/big"
-	"net"
-	"quicvpn/ippacket"
-	"quicvpn/tun"
+	"os"
+	"path/filepath"
+	"quicvpn/config"
 	"syscall"
 
 	"github.com/lucas-clemente/quic-go"
@@ -65,41 +65,35 @@ const message = "foobar"
 // then connect with a client, send the message, and wait for its receipt.
 func main() {
 
-	tdev := tun.NewTun(1500)
-	err := tdev.CreateTun("ev0", 1500, net.IPv4(192, 168, 1, 2), net.IPv4(255, 255, 255, 0))
-	fmt.Println("err", err)
-	if err == nil {
-
-		for {
-
-			buffer, err := tdev.Read()
-
-			p, err := ippacket.TryParse(buffer)
-			if err != nil {
-				log.Println("why error", err)
-			}
-
-			log.Println("src:", net.IP(buffer[12:16]), "dst:", net.IP(buffer[16:20]))
-			log.Println("src:", p.Src(), "--dst:", p.Dst(), "protocol:", p.Which(), "type:", p.IsV4())
-
-			fmt.Println(len(buffer), err)
-		}
-
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		fmt.Print("can not combin config file path!")
+		os.Exit(1)
+	}
+	configpath := dir + "/config.json"
+	if (len(configpath)) == 0 {
+		fmt.Println("config file path is incorrect!!", configpath)
+		os.Exit(1)
 	}
 
-	//go func() { log.Fatal(echoServer()) }()
+	config, err := config.Parse(configpath)
+	if err != nil {
+		fmt.Println("load config file failed!", err)
+		os.Exit(1)
+	}
 
-	//gohook.Hook(syscall.Socket, MySocket, SocketTrampoline)
+	var s *bool
+	s = flag.Bool("s", false, "a bool")
+	flag.Parse()
+	config.Dump()
 
-	//err := clientMain()
-	//if err != nil {
-	//	panic(err)
-	//}
+	if *s {
+		fmt.Println("hello")
+		config.Dump()
 
-	//Hello2(5, "hello")
-	//fmt.Println("--------------------------")
-	//Hello(3, "ieu")
-	//Hello2tamp(3, "fuck you!!!")
+	} else {
+
+	}
 
 }
 
