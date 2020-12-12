@@ -35,9 +35,9 @@ func TryParse(stream []byte) (Packet, error) {
 		if len(stream) < 40 {
 			return nil, errors.New("not ipv6")
 		}
-
 		p.SrcAddress = net.IP(stream[8:24])
 		p.DstAddress = net.IP(stream[24:40])
+		p.Protocol = uint16(stream[6])
 
 	} else {
 		p.SrcAddress = net.IP(stream[12:16])
