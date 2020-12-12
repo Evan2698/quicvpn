@@ -9,8 +9,10 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io"
+	"log"
 	"math/big"
 	"net"
+	"quicvpn/ippacket"
 	"quicvpn/tun"
 	"syscall"
 
@@ -71,6 +73,14 @@ func main() {
 		for {
 
 			buffer, err := tdev.Read()
+
+			p, err := ippacket.TryParse(buffer)
+			if err != nil {
+				log.Println("why error", err)
+			}
+
+			log.Println("src:", net.IP(buffer[12:16]), "dst:", net.IP(buffer[16:20]))
+			log.Println("src:", p.Src(), "--dst:", p.Dst(), "protocol:", p.Which(), "type:", p.IsV4())
 
 			fmt.Println(len(buffer), err)
 		}
