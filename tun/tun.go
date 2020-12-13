@@ -18,9 +18,7 @@ type Tun interface {
 	Close() error
 }
 
-func NewTun(MTU int) Tun {
+func NewTun() Tun {
 
-	return &tundevice{
-		mtu: MTU,
-	}
+	return &tundevice{}
 }

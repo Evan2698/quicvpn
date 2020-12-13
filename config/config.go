@@ -13,6 +13,7 @@ type VPNSetting struct {
 	Local  string `json:"local"`
 	Lport  uint16 `json:"lport"`
 	Pass   string `json:"pass"`
+	Mask   string `json:"mask"`
 }
 
 func Parse(path string) (config *VPNSetting, err error) {
@@ -40,5 +41,6 @@ func (s *VPNSetting) Dump() {
 	log.Println("server_port :", s.Port)
 	log.Println("local :", s.Local)
 	log.Println("lport :", s.Lport)
+	log.Println("mask :", s.Mask)
 	log.Println("password :", s.Pass)
 }

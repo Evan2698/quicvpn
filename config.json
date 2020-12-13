@@ -3,5 +3,6 @@
     "port": 9843,
     "local": "::1",
     "lport": 3993,
+    "mask": "255.255.255.0",
     "pass": "hello-c"
 }
