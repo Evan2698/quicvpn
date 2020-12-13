@@ -4,6 +4,6 @@
     "tunserver":"::1",
     "tunlocal": "::1",
     "mask": "255.255.255.0",
-    "pass": "hello-c",
+    "pass": "hello-c-which-OUR",
     "tun": "ev0"
 }
