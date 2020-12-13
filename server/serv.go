@@ -21,7 +21,7 @@ func VpnServer(c config.VPNSetting) error {
 		}
 	}()
 
-	tdev, err := common.CreateTun(c.Tun, c.TunServer, c.Mask, common.MTU)
+	tdev, err := common.CreateTun(c.Tun, c.TunServer, c.Mask, tun.MTU)
 	if err != nil {
 		log.Println("create tun device failed,", err)
 		return err
@@ -90,7 +90,7 @@ func handleRemote2Tun(s quic.Stream, dev tun.Tun, wg *sync.WaitGroup) {
 	}()
 	defer wg.Done()
 
-	buffer := make([]byte, common.MTU)
+	buffer := make([]byte, tun.MTU)
 	defer func() { buffer = nil }()
 
 	for {
@@ -104,7 +104,7 @@ func handleRemote2Tun(s quic.Stream, dev tun.Tun, wg *sync.WaitGroup) {
 		vLen := utils.Bytes2Int(content)
 		log.Println("read: ", content, vLen)
 
-		if vLen > common.MTU {
+		if vLen > tun.MTU {
 			log.Println("content length is too long", vLen)
 			break
 		}
