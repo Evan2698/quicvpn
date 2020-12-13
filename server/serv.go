@@ -15,6 +15,11 @@ import (
 )
 
 func VpnServer(c config.VPNSetting) error {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in f", r)
+		}
+	}()
 
 	tdev, err := common.CreateTun(c.Tun, c.TunServer, c.Mask, common.MTU)
 	if err != nil {
@@ -47,7 +52,11 @@ func VpnServer(c config.VPNSetting) error {
 }
 
 func handleTun2Remote(s quic.Stream, dev tun.Tun, wg *sync.WaitGroup) {
-
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in f", r)
+		}
+	}()
 	defer wg.Done()
 
 	for {
@@ -74,7 +83,11 @@ func handleTun2Remote(s quic.Stream, dev tun.Tun, wg *sync.WaitGroup) {
 }
 
 func handleRemote2Tun(s quic.Stream, dev tun.Tun, wg *sync.WaitGroup) {
-
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in f", r)
+		}
+	}()
 	defer wg.Done()
 
 	buffer := make([]byte, common.MTU)
@@ -108,6 +121,12 @@ func handleRemote2Tun(s quic.Stream, dev tun.Tun, wg *sync.WaitGroup) {
 }
 
 func handleSession(sess quic.Session, dev tun.Tun) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("Recovered in f", r)
+		}
+	}()
 
 	defer sess.CloseWithError(0x34, "Error ocurred!!!")
 	for {
