@@ -25,15 +25,32 @@ const (
 	ifReqSize          = 80
 )
 
-func (d *tundevice) CreateTun(name string, mtu int, IP, mask net.IP) error {
+const MTU = 1500
+
+func CreateAndroidTunDevice(fd int) (Tun, error) {
+
+	tun := os.NewFile(uintptr(fd), "")
+
+	return &tundevice{
+		fd:   tun,
+		mtu:  MTU,
+		name: "",
+	}, nil
+}
+
+func CreateTun(name string, mtu int, IP, mask net.IP) (Tun, error) {
 	deviceFile := "/dev/net/tun"
-	fd, err := os.OpenFile(deviceFile, os.O_RDWR, 0)
+	f, err := os.OpenFile(deviceFile, os.O_RDWR, 0)
 	if err != nil {
 		log.Println("[CRIT] Note: Cannot open TUN/TAP dev", deviceFile, err)
-		return err
+		return nil, err
 	}
 
-	d.fd = fd
+	d := &tundevice{
+		fd:   f,
+		mtu:  MTU,
+		name: name,
+	}
 
 	if len(name) > 14 {
 		name = name[:14]
@@ -49,8 +66,8 @@ func (d *tundevice) CreateTun(name string, mtu int, IP, mask net.IP) error {
 		uintptr(unsafe.Pointer(&ifr[0])))
 	if errno != 0 {
 		log.Println("[CRIT] Cannot ioctl TUNSETIFF:", errno)
-		fd.Close()
-		return errors.New("syscall  SYS_IOCTL failed")
+		f.Close()
+		return nil, errors.New("syscall  SYS_IOCTL failed")
 	}
 
 	d.name = string(ifr)
@@ -58,10 +75,11 @@ func (d *tundevice) CreateTun(name string, mtu int, IP, mask net.IP) error {
 	log.Printf("[INFO] TUN/TAP device %s opened.", d.name)
 	if err = configTun(d.name, IP, mask, d.mtu); err != nil {
 		log.Println("config tun failed!", err)
-		return errors.New("config tun failed!")
+		f.Close()
+		return nil, errors.New("config tun failed!")
 	}
 
-	return nil
+	return d, nil
 }
 
 type socketAddrRequest struct {

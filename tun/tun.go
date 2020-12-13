@@ -1,7 +1,6 @@
 package tun
 
 import (
-	"net"
 	"os"
 )
 
@@ -12,7 +11,6 @@ type tundevice struct {
 }
 
 type Tun interface {
-	CreateTun(name string, mtu int, IP, mask net.IP) error
 	Read() ([]byte, error)
 	Write([]byte) (int, error)
 	Close() error
