@@ -1,8 +1,9 @@
 {
     "server": "::1",
     "port": 9843,
-    "local": "::1",
-    "lport": 3993,
+    "tunserver":"::1",
+    "tunlocal": "::1",
     "mask": "255.255.255.0",
-    "pass": "hello-c"
+    "pass": "hello-c",
+    "tun": "ev0"
 }
